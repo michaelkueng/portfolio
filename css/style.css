@@ -228,13 +228,10 @@ section.anita-section.anita-section-grid-spacing {
 }
 .menu-footer-item {
     font-size: 1.7em !important;
-    font-style: normal !important;
-    font-variant: normal;
-    font-weight: 400 !important;
-    font-family: "Open Sans";
-    line-height: 1.4 !important;
+    font-weight: 100;
+    font-family: Rajdhani, sans-serif;
+    line-height: 1.2 !important;
 }
-
 .anita-bottom-gap--none,
 section.anita-bottom-gap--none,
 div.anita-bottom-gap--none {
@@ -400,6 +397,7 @@ h1 sup, h2 sup, h3 sup, h4 sup, h5 sup, h6 sup {
 .anita-caption {
     font-size: var(--anita-t-caption-fs);
     margin: 0;
+    font-weight: 100;
 }
 .anita-page-title-vorher-nachher {
     font-family: bradley-djr,sans-serif;

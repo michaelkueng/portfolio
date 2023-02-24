@@ -352,6 +352,17 @@
     }
     footer#anita-footer .anita-socials {
         padding-bottom: 6px;
+        
+    }
+    @media only screen and (max-width: 739px) {
+        footer#anita-footer .anita-socials {
+            display: none;
+        }
+    }
+    @media only screen and (max-width: 739px) {
+        footer#anita-footer .anita-copyright {
+            display: none;
+        }
     }
 
     /* --- Albums Listing --- */
@@ -464,4 +475,13 @@
         right: 10px;
         top: 10px;
     }
+}
+     /* Footer Menu */
+@media only screen and (max-width: 739px) {
+	.anita_footer_links .anita-next-album-wrap:first-child {
+		margin-bottom: -20px;
+	}
+	.anita_footer_links .anita-next-album-wrap {
+		padding-top: 0px;
+	}
 }
