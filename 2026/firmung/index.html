@@ -744,25 +744,61 @@ body.light-theme .download-box .line-3 {
 <div class="section-intro">
     <h2>Fotos herunterladen</h2>
     
+    <!-- =========================================================
+     MORGENZEREMONIE DOWNLOADS
+     ========================================================= -->
+<div class="downloads-morgen">
     <div class="download-grid">
-        <a href="https://we.tl/t-RY69YDdmvcHOqtCo" target="_blank" rel="noopener" class="download-box">
+        <!-- Web Quality -->
+        <a href="https://we.tl/t-S5YGi0z4ekOJyrHB" target="_blank" rel="noopener" class="download-box">
             <span class="line-1">Web-Qualität</span>
-            <span class="line-2">79 MB</span>
+            <span class="line-2">40 MB</span>
             <span class="line-3">wetransfer.com</span>
         </a>
 
-        <a href="https://we.tl/t-GY3uuUGTD8ZJ8xFY" target="_blank" rel="noopener" class="download-box">
+        <!-- Medium Quality -->
+        <a href="https://we.tl/t-QZmm7uHEw8tEHzCF" target="_blank" rel="noopener" class="download-box">
             <span class="line-1">Mittlere Qualität</span>
-            <span class="line-2">299 MB</span>
+            <span class="line-2">165 MB</span>
             <span class="line-3">wetransfer.com</span>
         </a>
 
-        <a href="https://we.tl/t-KwfKC9MpjPCPOq5C" target="_blank" rel="noopener" class="download-box">
+        <!-- High Quality -->
+        <a href="https://we.tl/t-jLxh4RGuvFc6vgUi" target="_blank" rel="noopener" class="download-box">
             <span class="line-1">Druck-Qualität</span>
-            <span class="line-2">2.4 GB</span>
+            <span class="line-2">1.28 GB</span>
             <span class="line-3">wetransfer.com</span>
         </a>
     </div>
+</div>
+
+<!-- =========================================================
+     NACHMITTAGSZEREMONIE DOWNLOADS
+     ========================================================= -->
+<div class="downloads-nachmittag" style="display: none;">
+    <div class="download-grid">
+        <!-- Web Quality -->
+        <a href="https://we.tl/t-FzhJvYDLbuF6gA3n" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Web-Qualität</span>
+            <span class="line-2">39 MB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+
+        <!-- Medium Quality -->
+        <a href="https://we.tl/t-R1Eu60CzCcwVoQ9A" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Mittlere Qualität</span>
+            <span class="line-2">134 MB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+
+        <!-- High Quality -->
+        <a href="https://we.tl/t-P4iOGvLH6VTznPUi" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Druck-Qualität</span>
+            <span class="line-2">1.13 GB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+    </div>
+</div>
 </div>
 
         <!-- DYNAMICALLY INJECTED GALLERY CONTAINERS -->
@@ -773,25 +809,28 @@ body.light-theme .download-box .line-3 {
     <div class="footer-container">
         <h3>Fotos herunterladen</h3>
         
-        <div class="download-grid" style="margin-bottom: 40px;">
-             <a href="https://we.tl/t-RY69YDdmvcHOqtCo" target="_blank" rel="noopener" class="download-box">
-            <span class="line-1">Web-Qualität</span>
-            <span class="line-2">79 MB</span>
-            <span class="line-3">wetransfer.com</span>
-        </a>
+        <div class="download-grid">
+    <!-- Web Quality Button -->
+    <a href="#" target="_blank" rel="noopener" class="download-box download-link-web">
+        <span class="line-1">Web-Qualität</span>
+        <span class="line-2">X KB</span>
+        <span class="line-3">wetransfer.com</span>
+    </a>
 
-        <a href="https://we.tl/t-GY3uuUGTD8ZJ8xFY" target="_blank" rel="noopener" class="download-box">
-            <span class="line-1">Mittlere Qualität</span>
-            <span class="line-2">299 MB</span>
-            <span class="line-3">wetransfer.com</span>
-        </a>
+    <!-- Medium Quality Button -->
+    <a href="#" target="_blank" rel="noopener" class="download-box download-link-medium">
+        <span class="line-1">Mittlere Qualität</span>
+        <span class="line-2">x MB</span>
+        <span class="line-3">wetransfer.com</span>
+    </a>
 
-        <a href="https://we.tl/t-KwfKC9MpjPCPOq5C" target="_blank" rel="noopener" class="download-box">
-            <span class="line-1">Druck-Qualität</span>
-            <span class="line-2">2.4 GB</span>
-            <span class="line-3">wetransfer.com</span>
-        </a>
-    </div>
+    <!-- High Quality Button -->
+    <a href="#" target="_blank" rel="noopener" class="download-box download-link-high">
+        <span class="line-1">Hohe Qualität</span>
+        <span class="line-2">x GB</span>
+        <span class="line-3">wetransfer.com</span>
+    </a>
+</div>
         
         <p>Nur zur persönlichen Verwendung, nicht für kommerzielle Zwecke zugelassen. Alle Rechte vorbehalten.</p><br><br>
         
@@ -902,8 +941,8 @@ function renderCeremonyPhotos(type) {
     const container = document.getElementById('ceremony-gallery-container');
     container.innerHTML = ''; 
 
-    const startNum = (type === 'morgen') ? 1 : 145;
-    const endNum = (type === 'morgen') ? 146 : 285;
+    const startNum = (type === 'morgen') ? 1 : 147;
+    const endNum = (type === 'morgen') ? 145 : 285;
 
     // 1. Filter panoramas that belong specifically to this ceremony
     const ceremonyPanos = PANORAMA_NUMBERS.filter(num => num >= startNum && num <= endNum);
@@ -978,45 +1017,43 @@ function renderCeremonyPhotos(type) {
     container.innerHTML = htmlBuffer;
 }
 
-        // 3. Smooth Transition between Landing Screen & Ceremony Gallery
-        function openCeremony(type) {
-            const landingView = document.getElementById('landing-view');
-            const ceremonyView = document.getElementById('ceremony-view');
-            const ceremonyHero = document.getElementById('ceremony-hero');
+       function openCeremony(type) {
+    const landingView = document.getElementById('landing-view');
+    const ceremonyView = document.getElementById('ceremony-view');
+    const ceremonyHero = document.getElementById('ceremony-hero');
 
-            if (type === 'morgen') {
-                document.getElementById('ceremony-title').innerText = "Morgenzeremonie";
-                document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggist, Suhr — 10:00 Uhr";
-                // Hero uses the first photo of morning session as background
-                ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (1 of 285).jpg')";
-            } else {
-                document.getElementById('ceremony-title').innerText = "Nachmittagszeremonie";
-                document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggeist, Suhr — 15 Uhr";
-                // Hero uses the first photo of afternoon session as background
-                ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (146 of 285).jpg')";
-            }
+    if (type === 'morgen') {
+        document.getElementById('ceremony-title').innerText = "Morgenzeremonie";
+        document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggeist, Suhr";
+        ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (1 of 285).jpg')";
+    } else {
+        document.getElementById('ceremony-title').innerText = "Nachmittagszeremonie";
+        document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggeist, Suhr";
+        ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (146 of 285).jpg')";
+    }
 
-            // Generate photo HTML dynamically
-            renderCeremonyPhotos(type);
+    // ⚡ Toggle download button groups for the active ceremony
+    document.querySelectorAll('.downloads-morgen').forEach(el => el.style.display = (type === 'morgen') ? 'block' : 'none');
+    document.querySelectorAll('.downloads-nachmittag').forEach(el => el.style.display = (type === 'nachmittag') ? 'block' : 'none');
 
-            // Step A: Fade out Landing Portal
-            landingView.style.opacity = '0';
-            
-            setTimeout(() => {
-                landingView.classList.add('hidden');
-                document.body.classList.remove('landing-active'); // Unlocks scrollbar
-                
-                // Step B: Reveal & Fade in Ceremony Gallery
-                ceremonyView.classList.remove('hidden');
-                window.scrollTo(0, 0); // Reset scroll position to top
-                
-                setTimeout(() => {
-                    ceremonyView.style.opacity = '1';
-                    startDreamyParticles('ceremony-hero-canvas', 150);
-                    initScrollAnimations(); // Fire up reveal effects and theme observers
-                }, 50);
-            }, 600);
-        }
+    renderCeremonyPhotos(type);
+
+    landingView.style.opacity = '0';
+    
+    setTimeout(() => {
+        landingView.classList.add('hidden');
+        document.body.classList.remove('landing-active');
+        
+        ceremonyView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+        
+        setTimeout(() => {
+            ceremonyView.style.opacity = '1';
+            startDreamyParticles('ceremony-hero-canvas', 150);
+            initScrollAnimations();
+        }, 50);
+    }, 600);
+}
 
         function goBackToLanding() {
             const landingView = document.getElementById('landing-view');
@@ -1161,11 +1198,29 @@ function prevLightboxImage(e) {
 }
 
 function closeLightbox(e) {
-    if (!e || e.target.id === 'lightbox' || e.target.classList.contains('lightbox-close')) {
+    if (!e) {
+        // Called programmatically (e.g., Escape key)
+        stopSlideshow();
+        document.getElementById('lightbox').classList.remove('open');
+        return;
+    }
+
+    // Explicitly close if clicking the Close Button (X)
+    if (e.target.classList.contains('lightbox-close') || e.target.closest('.lightbox-close')) {
+        stopSlideshow();
+        document.getElementById('lightbox').classList.remove('open');
+        return;
+    }
+
+    // Close if clicking anywhere OUTSIDE the photo and control UI
+    const isInteractive = e.target.closest('img, button, .lightbox-controls, .slideshow-btn, .lightbox-nav');
+    if (!isInteractive) {
         stopSlideshow();
         document.getElementById('lightbox').classList.remove('open');
     }
 }
+
+
 
 // 5. Keyboard Navigation
 document.addEventListener('keydown', function(e) {
@@ -1180,15 +1235,19 @@ document.addEventListener('keydown', function(e) {
 
 // 6. Mobile Touch Swiping
 const lightboxEl = document.getElementById('lightbox');
+if (lightboxEl) {
+    lightboxEl.addEventListener('click', closeLightbox);
 
-lightboxEl.addEventListener('touchstart', function(e) {
-    touchStartX = e.changedTouches[0].screenX;
-}, { passive: true });
+    // Mobile touch swipe handlers
+    lightboxEl.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
 
-lightboxEl.addEventListener('touchend', function(e) {
-    touchEndX = e.changedTouches[0].screenX;
-    handleSwipe();
-}, { passive: true });
+    lightboxEl.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+}
 
 function handleSwipe() {
     const threshold = 40;
