@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firmung 2026 — Fotogalerie</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0c; 
+            --text-light: #f5f5f7;
+            --bg-light: #f7f7f9; 
+            --text-dark: #1d1d1f;
+            --accent: #d4af37; /* Swiss gold */
+            --grey-muted: rgba(255, 255, 255, 0.3);
+            --grey-hover: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            transition: background-color 1.6s ease-in-out, color 1.6s ease-in-out;
+            overflow-x: hidden;
+        }
+
+        body.landing-active {
+            overflow: hidden; /* Locks scrolling on landing portal */
+        }
+
+        /* Reusable Localized Particle Canvas Style */
+        .particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* 1. Password Protection Overlay */
+        #password-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(10, 10, 12, 0.6), rgba(10, 10, 12, 0.9)), 
+                        url('kirche.jpg') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s cubic-bezier(0.25, 1, 0.5, 1), visibility 1s ease;
+        }
+        .login-box { 
+            text-align: center; 
+            max-width: 320px; 
+            padding: 20px;
+            z-index: 10;
+        }
+        .login-box h2 { font-weight: 200; margin-bottom: 25px; letter-spacing: 4px; font-size: 1.5rem; text-shadow: 0 4px 15px rgba(0,0,0,0.6); }
+        .login-box input {
+            width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(21, 21, 24, 0.75); color: white; border-radius: 8px; text-align: center; margin-bottom: 15px; font-size: 1rem;
+            outline: none; transition: border-color 0.3s; backdrop-filter: blur(10px);
+        }
+        .login-box input:focus { border-color: var(--accent); }
+        .login-box button {
+            background: var(--accent); color: black; border: none; padding: 14px 24px; 
+            border-radius: 8px; cursor: pointer; font-weight: 600; width: 100%; font-size: 1rem; transition: opacity 0.2s;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .login-box button:hover { opacity: 0.9; }
+
+        /* LIGHTBOX MODAL */
+    /* =========================================================
+   ENHANCED INTERACTIVE LIGHTBOX GALLERY
+   ========================================================= */
+/* =========================================================
+   TRUE DUAL-LAYER CROSSFADE LIGHTBOX
+   ========================================================= */
+#lightbox {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(6, 6, 8, 0.98); z-index: 10000;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    opacity: 0; visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    user-select: none;
+}
+#lightbox.open { opacity: 1; visibility: visible; }
+
+/* Stage container that holds both overlapping photos */
+.lightbox-stage {
+    position: relative;
+    width: 90vw;
+    height: 82vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Dual Overlapping Image Layers */
+/* Dual Overlapping Image Layers */
+.lightbox-slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+    opacity: 0;
+    
+    /* ⚡ Default: Instant switch for manual clicks, key presses & swipes */
+    transition: none; 
+    pointer-events: none;
+}
+
+/* ⚡ Smooth 0.8s crossfade ONLY when Diashow is running */
+#lightbox.slideshow-active .lightbox-slide {
+    transition: opacity 0.8s ease-in-out;
+}
+
+/* The visible photo layer */
+.lightbox-slide.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Close & Nav Controls stay safely on top */
+.lightbox-close {
+    position: absolute; top: 25px; right: 35px; color: #fff;
+    font-size: 2.5rem; font-weight: 200; cursor: pointer; transition: opacity 0.2s;
+    z-index: 10002;
+}
+.lightbox-close:hover { opacity: 0.6; }
+
+.lightbox-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2); font-size: 1.8rem;
+    width: 54px; height: 54px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.3s ease; z-index: 10002; backdrop-filter: blur(10px);
+}
+.lightbox-nav:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); color: var(--accent); }
+.lightbox-prev { left: 30px; }
+.lightbox-next { right: 30px; }
+
+#lightbox-counter {
+    position: absolute; bottom: 25px; color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem; letter-spacing: 2px; font-weight: 300;
+}
+
+.lightbox-play-btn {
+    position: absolute; bottom: 20px; right: 35px;
+    background: rgba(255, 255, 255, 0.08); color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2); font-size: 0.85rem;
+    padding: 8px 18px; border-radius: 30px; cursor: pointer;
+    display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+    z-index: 10002; backdrop-filter: blur(10px); letter-spacing: 1px; text-transform: uppercase;
+}
+.lightbox-play-btn:hover { background: rgba(255, 255, 255, 0.2); border-color: var(--accent); color: var(--accent); }
+.lightbox-play-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212, 175, 55, 0.15); box-shadow: 0 0 12px rgba(212, 175, 55, 0.2); }
+
+@media (max-width: 768px) {
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+    .lightbox-nav { width: 44px; height: 44px; font-size: 1.4rem; }
+    .lightbox-play-btn { bottom: 20px; right: 20px; font-size: 0.75rem; padding: 6px 14px; }
+}
+#lightbox.open #lightbox-img { transform: scale(1); }
+
+/* Close Button */
+.lightbox-close {
+    position: absolute; top: 25px; right: 35px; color: #fff;
+    font-size: 2.5rem; font-weight: 200; cursor: pointer; transition: opacity 0.2s;
+    z-index: 10002;
+}
+.lightbox-close:hover { opacity: 0.6; }
+
+/* Navigation Buttons */
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 1.8rem;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 10002;
+    backdrop-filter: blur(10px);
+}
+.lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.lightbox-prev { left: 30px; }
+.lightbox-next { right: 30px; }
+
+/* Image Counter */
+#lightbox-counter {
+    position: absolute;
+    bottom: 25px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    font-weight: 300;
+}
+
+@media (max-width: 768px) {
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+    .lightbox-nav { width: 44px; height: 44px; font-size: 1.4rem; }
+}
+
+        /* Smooth View Switching */
+        .view-screen {
+            opacity: 1;
+            transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .view-screen.hidden {
+            display: none !important;
+            opacity: 0;
+        }
+
+        /* 2. Hero Section Styles */
+        .hero {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.55)), 
+                        url('hero_title.jpg') center/cover no-repeat;
+        }
+
+        .hero h1, .hero p, .hero h5, .hero h6 { z-index: 10; position: relative; } 
+        .hero h1 { font-size: 3.8rem; font-weight: 200; letter-spacing: 6px; margin-bottom: 12px; text-transform: uppercase;}
+        .hero p { font-size: 1.1rem; color: #ccc; font-weight: 300; letter-spacing: 2px;}
+
+        h5 { font-size: 0.9rem; font-weight: 200; letter-spacing: 4px; margin-bottom: 12px; text-transform: uppercase; }
+        h6 { font-size: 1rem; font-weight: 200; letter-spacing: 3px; margin-bottom: 12px; text-transform: uppercase; }
+
+        /* Title Decoration SVG Filter Styling */
+        #title-decoration img,
+        #ceremony-title-deco img {
+            width: 320px;
+            max-width: 80%;
+            height: auto;
+            display: block;
+            margin: 15px auto 25px;
+            filter: url(#solidify-white) brightness(200%);
+        }
+
+        /* Ceremony Navigation Buttons */
+        .ceremony-nav {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            max-width: 600px;
+            margin: 40px auto 0;
+            padding: 0 40px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .btn-ceremony {
+            flex: 1;
+            padding: 16px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 6px;
+            border: 1px solid var(--grey-muted);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer;
+        }
+
+        .btn-ceremony:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* Ceremony Hero Configuration */
+        #ceremony-hero {
+            width: 100vw;
+            aspect-ratio: 16 / 9;
+            min-height: 55vh;
+            max-height: 85vh;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Back to Landing Nav Button */
+        #ceremony-hero .btn-back {
+            position: absolute !important;
+            top: 30px;
+            left: 40px;
+            z-index: 20;
+            margin: 0;
+            background: rgba(10, 10, 12, 0.6);
+            color: #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            font-size: 0.8rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #ceremony-hero .btn-back:hover {
+            color: white;
+            border-color: var(--accent);
+            background: rgba(10, 10, 12, 0.9);
+        }
+
+        /* Gallery Sections Layout */
+        .section-intro {
+            max-width: 800px; margin: 0 auto; padding: 100px 20px 50px; text-align: center;
+            z-index: 5; position: relative;
+        }
+        .section-intro h2 { font-size: 2.2rem; font-weight: 200; margin-bottom: 20px; letter-spacing: 2px; text-transform: uppercase;}
+        .section-intro p { color: #888; font-weight: 300; font-size: 1.1rem; line-height: 1.6; }
+
+        /* 2-Column Standard Grid */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 30px; padding: 0 60px 40px; max-width: 1800px; margin: 0 auto;
+        }
+
+        /* 3-Column Medium-Detail Grid */
+        .tri-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px; padding: 0 60px 40px; max-width: 1800px; margin: 0 auto;
+        }
+
+        /* Desktop Full-Width Panorama Layout Block */
+        .pano-block {
+            width: 100%;
+            height: 30vh; 
+            max-height: 380px;
+            margin: 30px 0 40px 0;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.4s cubic-bezier(0.215, 0.610, 0.355, 1), 
+                        transform 1.4s cubic-bezier(0.215, 0.610, 0.355, 1);
+        }
+        .pano-block.revealed { opacity: 1; transform: translateY(0); }
+        .pano-block img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .pano-block:hover img { transform: scale(1.015); }
+
+        /* Fancy Scroll-Reveal Styling */
+        .photo-card {
+            background: #121214; aspect-ratio: 3/2; overflow: hidden; border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.2s cubic-bezier(0.215, 0.610, 0.355, 1), 
+                        transform 1.2s cubic-bezier(0.215, 0.610, 0.355, 1),
+                        box-shadow 0.4s ease;
+        }
+        .photo-card.revealed { opacity: 1; transform: translateY(0); }
+        .photo-card:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+        .photo-card img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .photo-card:hover img { transform: scale(1.03); }
+
+        /* Light/Dark Theme Switch Styles */
+        body.light-theme {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+        }
+        body.light-theme .photo-card { background: #eef0f3; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        body.light-theme .photo-card:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+        body.light-theme .section-intro p { color: #666; }
+
+        /* Footer Styles */
+      /* =========================================================
+   DARK THEME FOOTER (Seamless Integration)
+   ========================================================= */
+footer {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    padding: 100px 40px;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    z-index: 10;
+    transition: background-color 1.6s ease-in-out, border-color 1.6s ease-in-out;
+}
+
+.footer-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.footer-container h3 {
+    font-weight: 200;
+    font-size: 2rem;
+    margin-bottom: 35px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-light);
+}
+
+.footer-container p {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.95rem;
+    font-weight: 300;
+    line-height: 1.6;
+}
+
+.footer-container a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.footer-container a:hover {
+    opacity: 0.8;
+}
+
+/* Secondary "Zurück zur Übersicht" Button in Footer */
+.footer-container .btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 14px 28px;
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.footer-container .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+/* Light Theme Override (if theme toggle is triggered) */
+body.light-theme footer {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme .footer-container h3 {
+    color: var(--text-dark);
+}
+
+body.light-theme .footer-container p {
+    color: #666;
+}
+
+body.light-theme .footer-container .btn-secondary {
+    background: rgba(0, 0, 0, 0.03);
+    color: var(--text-dark);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+body.light-theme .footer-container .btn-secondary:hover {
+    background: var(--text-dark);
+    color: #fff;
+}
+        .btn-group { display: flex; gap: 20px; justify-content: center; margin-bottom: 50px; flex-wrap: wrap;}
+        .btn {
+            padding: 20px 40px; border-radius: 4px; text-decoration: none; font-weight: 500;
+            letter-spacing: 1px; display: inline-flex; align-items: center; transition: all 0.3s; font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        .btn-primary { background: #1d1d1f; color: white; }
+        .btn-primary:hover { background: #000; }
+        .btn-secondary { background: transparent; color: #1d1d1f; border: 1px solid #1d1d1f; }
+        .btn-secondary:hover { background: #1d1d1f; color: white; }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 900px) {
+            .tri-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid, .tri-grid { grid-template-columns: 1fr; padding: 0 20px 30px; gap: 20px; }
+            .hero h1 { font-size: 2.2rem; letter-spacing: 3px; }
+            .section-intro h2 { font-size: 1.6rem; }
+            .pano-block { height: 20vh; margin: 20px 0 30px 0; } 
+            #ceremony-hero .btn-back { top: 20px; left: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .ceremony-nav { flex-direction: column; gap: 10px; }
+        }
+
+        /* Desktop Micro-Tuning for Landing Portal */
+        @media (min-width: 1024px) {
+            .hero-landing {
+                background-position: center 36% !important;
+            }
+            .hero-landing h1 {
+                font-size: 3rem;
+                letter-spacing: 5px;
+                margin-top: -18vh;
+                margin-bottom: 3.5vh;
+            }
+            .hero-landing h5 {
+                font-size: 0.9rem;
+                letter-spacing: 4px;
+                margin-top: 6vh;
+                margin-bottom: 1.2vh;
+                padding: 4px 12px;
+                text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8); 
+            }
+            .hero-landing #title-decoration img {
+                width: 45vw;
+                margin: 2.5vh auto 2vh auto;
+            }
+            #title-decoration img,
+            #ceremony-title-deco img {
+                width: 380px;
+            }
+        }
+        /* =========================================================
+   BOX-STYLE DOWNLOAD BUTTONS
+   ========================================================= */
+.download-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    max-width: 900px;
+    margin: 30px auto 0;
+    width: 100%;
+}
+
+.download-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-light);
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    backdrop-filter: blur(10px);
+}
+
+.download-box:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.download-box .line-1 {
+    font-size: 1.05rem;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.download-box .line-2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 10px;
+}
+
+.download-box .line-3 {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 1px;
+    text-transform: lowercase;
+}
+
+/* Light theme support for footer */
+body.light-theme .download-box {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.12);
+    color: var(--text-dark);
+}
+body.light-theme .download-box:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: #b89524;
+}
+body.light-theme .download-box .line-2 {
+    color: #b89524;
+}
+body.light-theme .download-box .line-3 {
+    color: rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 768px) {
+    .download-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+#ceremony-title {
+    margin-bottom: 15px;
+}
+#ceremony-subtitle {
+    margin-bottom: 10px;
+}
+    </style>
+</head>
+<body class="landing-active">
+
+    <!-- PASSWORD GATE OVERLAY -->
+    <div id="password-overlay">
+        <canvas id="login-canvas" class="particle-canvas"></canvas>
+        <div class="login-box">
+            <h2>PRIVATE GALERIE</h2>
+            <input type="password" id="password-input" placeholder="Passwort eingeben...">
+            <button onclick="checkPassword()">Galerie öffnen</button>
+        </div>
+    </div>
+
+<!-- DUAL-LAYER CROSSFADE LIGHTBOX MODAL -->
+<div id="lightbox" onclick="closeLightbox(event)">
+    <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+    
+    <button class="lightbox-nav lightbox-prev" onclick="prevLightboxImage(event)" title="Vorheriges Bild">&#10094;</button>
+    <button class="lightbox-nav lightbox-next" onclick="nextLightboxImage(event)" title="Nächstes Bild">&#10095;</button>
+    
+    <!-- Stage holding Layer 1 & Layer 2 -->
+    <div class="lightbox-stage" onclick="event.stopPropagation()">
+        <img id="lightbox-img-1" class="lightbox-slide active" src="" alt="Full size view">
+        <img id="lightbox-img-2" class="lightbox-slide" src="" alt="Full size view">
+    </div>
+    
+    <div id="lightbox-counter"></div>
+
+    <button id="slideshow-btn" class="lightbox-play-btn" onclick="toggleSlideshow(event)">
+        <span id="slideshow-icon">&#9654;</span> <span id="slideshow-text">Diashow</span>
+    </button>
+</div>
+
+    <!-- AUDIO FILE ELEMENT -->
+    <audio id="ambient-audio" loop src=""></audio>
+
+    <!-- Hidden SVG filter that multiplies image alpha/opacity for crisp white rendering -->
+    <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" aria-hidden="true">
+      <filter id="solidify-white">
+        <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 6 0" />
+      </filter>
+    </svg>
+
+    <!-- ==========================================
+         VIEW 1: LANDING PORTAL (Hero Screen Only)
+         ========================================== -->
+    <div id="landing-view" class="view-screen">
+        <header class="hero hero-landing">
+            <canvas id="hero-canvas" class="particle-canvas"></canvas>
+            
+            <h1>Das war die Firmung 2026</h1>
+            <h5>Katholische Pfarreien Aarau, Buchs-Rohr & Suhr-Gränichen</h5>
+            <div id="title-decoration"> <img src="text_deco.png" alt="Dekoration"></div>
+            <h6>Katholische Kirche Heiliggist, Suhr, 13. Juni 2026</h6>
+
+            <div class="ceremony-nav">
+                <button class="btn-ceremony" onclick="openCeremony('morgen')">Morgenzeremonie</button>
+                <button class="btn-ceremony" onclick="openCeremony('nachmittag')">Nachmittagszeremonie</button>
+            </div>
+        </header>
+    </div>
+
+    <!-- ==========================================
+         VIEW 2: CEREMONY GALLERY PAGE
+         ========================================== -->
+    <div id="ceremony-view" class="view-screen hidden">
+        
+        <!-- CEREMONY HERO HEADER -->
+        <header id="ceremony-hero">
+            <canvas id="ceremony-hero-canvas" class="particle-canvas"></canvas>
+            
+            <button class="btn-back" onclick="goBackToLanding()">← Zur Übersicht</button>
+            
+            <h1 id="ceremony-title">Morgenzeremonie</h1>
+            <p id="ceremony-subtitle">Katholische Kirche Heiliggist — Suhr, 13. Juni 2026</p>
+            <div id="ceremony-title-deco"> <img src="text_deco.png" alt="Dekoration"></div>
+        </header>
+
+        <!-- DOWNLOAD NOTIFICATION SECTION -->
+       <!-- DOWNLOAD NOTIFICATION SECTION -->
+<div class="section-intro">
+    <h2>Fotos herunterladen</h2>
+    
+    <div class="download-grid">
+        <a href="https://we.tl/t-RY69YDdmvcHOqtCo" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Web-Qualität</span>
+            <span class="line-2">79 MB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+
+        <a href="https://we.tl/t-GY3uuUGTD8ZJ8xFY" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Mittlere Qualität</span>
+            <span class="line-2">299 MB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+
+        <a href="https://we.tl/t-KwfKC9MpjPCPOq5C" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Druck-Qualität</span>
+            <span class="line-2">2.4 GB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+    </div>
+</div>
+
+        <!-- DYNAMICALLY INJECTED GALLERY CONTAINERS -->
+        <div id="ceremony-gallery-container"></div>
+
+        <!-- FOOTER -->
+       <footer>
+    <div class="footer-container">
+        <h3>Fotos herunterladen</h3>
+        
+        <div class="download-grid" style="margin-bottom: 40px;">
+             <a href="https://we.tl/t-RY69YDdmvcHOqtCo" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Web-Qualität</span>
+            <span class="line-2">79 MB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+
+        <a href="https://we.tl/t-GY3uuUGTD8ZJ8xFY" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Mittlere Qualität</span>
+            <span class="line-2">299 MB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+
+        <a href="https://we.tl/t-KwfKC9MpjPCPOq5C" target="_blank" rel="noopener" class="download-box">
+            <span class="line-1">Druck-Qualität</span>
+            <span class="line-2">2.4 GB</span>
+            <span class="line-3">wetransfer.com</span>
+        </a>
+    </div>
+        
+        <p>Nur zur persönlichen Verwendung, nicht für kommerzielle Zwecke zugelassen. Alle Rechte vorbehalten.</p><br><br>
+        
+        <div style="margin-bottom: 30px;">
+            <button class="btn btn-secondary" onclick="goBackToLanding()">← Zurück zur Übersicht</button>
+        </div>
+
+         Illustration für Text-Dekoration: <a href="https://www.magnific.com/free-psd/decorative-line-divider-design_158210055.htm#fromView=keyword&page=1&position=0&uuid=1038015b-6af7-4baf-9241-75d76ed67dfe&query=Swirly+lines+png" target="_blank" rel="noopener">magnific</a><br><br>
+                Fotos und Website von <p style="font-size: 0.85rem; color: #86868b; font-weight: 300; letter-spacing: 0.5px;"><a href="https://www.michaelkueng.ch" target="_blank">Michael Küng</a></p>
+            </div>
+    
+</footer>
+              
+    </div>
+
+    <script>
+       
+const PASSWORD_HASH = "cee2b25b3659f9d5652f750e355dc4eec6b768b72beed5bc8656d331c0ed08d6";
+
+// 1. Initial Page Load & Session Check
+window.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('password-overlay');
+    const input = document.getElementById('password-input');
+    const isAuthenticated = sessionStorage.getItem('firmung_2026_auth') === 'true';
+
+    if (isAuthenticated) {
+        // User already authenticated in this session -> hide overlay immediately
+        if (overlay) overlay.style.display = 'none';
+        if (typeof startDreamyParticles === 'function') {
+            startDreamyParticles('hero-canvas', 300);
+        }
+    } else {
+        // Enforce protection -> show overlay, initialize base particles, focus input
+        if (overlay) overlay.style.display = 'flex';
+        if (typeof startDreamyParticles === 'function') {
+            startDreamyParticles('hero-canvas', 145);
+        }
+        if (input) {
+            setTimeout(() => input.focus(), 150);
+        }
+    }
+
+    // Attach event listeners
+    if (input) {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+        input.addEventListener('input', () => {
+            const errorMsg = document.getElementById('password-error');
+            if (errorMsg) errorMsg.style.display = 'none';
+        });
+    }
+});
+
+// 2. Production Password Verification (SHA-256)
+async function checkPassword() {
+    const inputEl = document.getElementById('password-input');
+    const overlay = document.getElementById('password-overlay');
+    const card = document.querySelector('.login-card');
+    const errorMsg = document.getElementById('password-error');
+    
+    if (!inputEl) return;
+    const input = inputEl.value;
+
+    // Hash input using native Web Crypto API
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const inputHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (inputHash === PASSWORD_HASH) {
+        // Persist session authentication
+        sessionStorage.setItem('firmung_2026_auth', 'true');
+
+        if (typeof startDreamyParticles === 'function') {
+            startDreamyParticles('hero-canvas', 300);
+        }
+
+        if (overlay) {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 800);
+        }
+    } else {
+        // Invalid attempt: trigger shake UI & prompt error
+        if (card) {
+            card.classList.add('shake');
+            setTimeout(() => card.classList.remove('shake'), 500);
+        }
+
+        if (errorMsg) {
+            errorMsg.style.display = 'block';
+        } else {
+            alert('Falsches Passwort! Bitte versuchen Sie es erneut.');
+        }
+
+        inputEl.value = '';
+        inputEl.focus();
+    }
+}
+
+        // 2. DYNAMIC PHOTO GALLERY GENERATOR (285 Photos Total)
+        // 🖼️ LIST YOUR ULTRA-WIDE / PANORAMA PHOTO NUMBERS HERE:
+const PANORAMA_NUMBERS = [1, 6, 7, 8, 12, 15, 20, 22, 24, 116, 120, 121, 122, 158, 159, 166, 167, 172, 176, 177]; // Replace with your actual numbers!
+
+
+function renderCeremonyPhotos(type) {
+    const container = document.getElementById('ceremony-gallery-container');
+    container.innerHTML = ''; 
+
+    const startNum = (type === 'morgen') ? 1 : 145;
+    const endNum = (type === 'morgen') ? 146 : 285;
+
+    // 1. Filter panoramas that belong specifically to this ceremony
+    const ceremonyPanos = PANORAMA_NUMBERS.filter(num => num >= startNum && num <= endNum);
+    
+    // 2. Collect all regular (non-panorama) photos for this ceremony
+    const ceremonyRegulars = [];
+    for (let i = startNum; i <= endNum; i++) {
+        if (!ceremonyPanos.includes(i)) {
+            ceremonyRegulars.push(i);
+        }
+    }
+
+    // 3. Group regular photos into alternating 4-photo (2-col) and 6-photo (3-col) blocks
+    const blocks = [];
+    let regIndex = 0;
+    let isTri = false; // Starts with 4-photo 2-column grid
+
+    while (regIndex < ceremonyRegulars.length) {
+        const targetCount = isTri ? 6 : 4;
+        const currentBlock = ceremonyRegulars.slice(regIndex, regIndex + targetCount);
+        blocks.push({
+            type: isTri ? 'tri-grid' : 'gallery-grid',
+            photos: currentBlock
+        });
+        regIndex += targetCount;
+        isTri = !isTri; // Alternate grid size for editorial rhythm
+    }
+
+    // 4. Calculate even insertion points for the detected panoramas across the grid blocks
+    const P = ceremonyPanos.length;
+    const B = blocks.length;
+    const panoInsertMap = {}; // Map: grid_block_index -> pano_photo_number
+
+    if (P > 0 && B > 0) {
+        ceremonyPanos.forEach((panoNum, idx) => {
+            // Evenly space panos: places them at 1/(P+1), 2/(P+1), etc., along the block sequence
+            let targetBlockIndex = Math.floor(((idx + 1) * B) / (P + 1)) - 1;
+            targetBlockIndex = Math.max(0, Math.min(B - 1, targetBlockIndex));
+            
+            // Avoid collisions if multiple panos target the same slot
+            while (panoInsertMap[targetBlockIndex] !== undefined && targetBlockIndex < B - 1) {
+                targetBlockIndex++;
+            }
+            panoInsertMap[targetBlockIndex] = panoNum;
+        });
+    }
+
+    // 5. Build final HTML string
+    let htmlBuffer = '';
+    blocks.forEach((block, index) => {
+        
+        // Render regular photo grid
+        htmlBuffer += `<div class="${block.type}">`;
+        block.photos.forEach(num => {
+            htmlBuffer += `
+            <div class="photo-card" onclick="openLightbox(this)">
+                <img src="img/firmung_suhr_2026 (${num} of 285).jpg" alt="Firmung Foto ${num}" loading="lazy">
+            </div>`;
+        });
+        htmlBuffer += `</div>`;
+
+        // If an actual panorama is scheduled after this block, insert full-width pano
+        if (panoInsertMap[index] !== undefined) {
+            const panoNum = panoInsertMap[index];
+            htmlBuffer += `
+            <div class="pano-block" onclick="openLightbox(this)">
+                <img src="img/firmung_suhr_2026 (${panoNum} of 285).jpg" alt="Firmung Panorama ${panoNum}" loading="lazy">
+            </div>`;
+        }
+    });
+
+    container.innerHTML = htmlBuffer;
+}
+
+        // 3. Smooth Transition between Landing Screen & Ceremony Gallery
+        function openCeremony(type) {
+            const landingView = document.getElementById('landing-view');
+            const ceremonyView = document.getElementById('ceremony-view');
+            const ceremonyHero = document.getElementById('ceremony-hero');
+
+            if (type === 'morgen') {
+                document.getElementById('ceremony-title').innerText = "Morgenzeremonie";
+                document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggist, Suhr — 10:00 Uhr";
+                // Hero uses the first photo of morning session as background
+                ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (1 of 285).jpg')";
+            } else {
+                document.getElementById('ceremony-title').innerText = "Nachmittagszeremonie";
+                document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggeist, Suhr — 15 Uhr";
+                // Hero uses the first photo of afternoon session as background
+                ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (146 of 285).jpg')";
+            }
+
+            // Generate photo HTML dynamically
+            renderCeremonyPhotos(type);
+
+            // Step A: Fade out Landing Portal
+            landingView.style.opacity = '0';
+            
+            setTimeout(() => {
+                landingView.classList.add('hidden');
+                document.body.classList.remove('landing-active'); // Unlocks scrollbar
+                
+                // Step B: Reveal & Fade in Ceremony Gallery
+                ceremonyView.classList.remove('hidden');
+                window.scrollTo(0, 0); // Reset scroll position to top
+                
+                setTimeout(() => {
+                    ceremonyView.style.opacity = '1';
+                    startDreamyParticles('ceremony-hero-canvas', 150);
+                    initScrollAnimations(); // Fire up reveal effects and theme observers
+                }, 50);
+            }, 600);
+        }
+
+        function goBackToLanding() {
+            const landingView = document.getElementById('landing-view');
+            const ceremonyView = document.getElementById('ceremony-view');
+
+            document.body.classList.remove('light-theme');
+
+            ceremonyView.style.opacity = '0';
+
+            setTimeout(() => {
+                ceremonyView.classList.add('hidden');
+                document.body.classList.add('landing-active'); // Lock scrollbar again
+                
+                landingView.classList.remove('hidden');
+                window.scrollTo(0, 0);
+
+                setTimeout(() => {
+                    landingView.style.opacity = '1';
+                    startDreamyParticles('hero-canvas', 45);
+                }, 50);
+            }, 600);
+        }
+
+ let currentGalleryImages = [];
+let currentLightboxIndex = 0;
+let activeSlideIndex = 1; // Tracks whether Layer 1 or Layer 2 is currently visible
+let touchStartX = 0;
+let touchEndX = 0;
+let slideshowInterval = null;
+const SLIDESHOW_SPEED = 2800; // ⚡ 2.8 seconds per photo gives a smooth, relaxed rhythm
+
+// 1. Open Lightbox
+function openLightbox(element) {
+    const containerImgs = Array.from(document.querySelectorAll('#ceremony-gallery-container img'));
+    currentGalleryImages = containerImgs.map(img => img.src);
+    
+    const targetSrc = element.querySelector('img').src;
+    currentLightboxIndex = currentGalleryImages.indexOf(targetSrc);
+    if (currentLightboxIndex === -1) currentLightboxIndex = 0;
+
+    stopSlideshow();
+    updateLightboxContent(false); // Initial load without transition
+    
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.add('open');
+}
+
+// 2. True Dual-Layer Crossfade Engine
+// 2. Dual-Mode Render Engine (Zero Ghosting / Flashing)
+function updateLightboxContent(fade = true) {
+    if (currentGalleryImages.length === 0) return;
+
+    const nextSrc = currentGalleryImages[currentLightboxIndex];
+    document.getElementById('lightbox-counter').innerText = `${currentLightboxIndex + 1} / ${currentGalleryImages.length}`;
+
+    const isSlideshowActive = document.getElementById('lightbox').classList.contains('slideshow-active');
+
+    const currentSlide = document.getElementById(`lightbox-img-${activeSlideIndex}`);
+    const nextSlideIndex = activeSlideIndex === 1 ? 2 : 1;
+    const nextSlide = document.getElementById(`lightbox-img-${nextSlideIndex}`);
+
+    if (isSlideshowActive && fade) {
+        // 🌅 SLIDESHOW MODE: True Dual-Layer Crossfade
+        nextSlide.src = nextSrc;
+        nextSlide.classList.add('active');
+        currentSlide.classList.remove('active');
+        activeSlideIndex = nextSlideIndex;
+    } else {
+        // ⚡ MANUAL MODE: Instant update on the CURRENT active layer directly (No layer swapping = No ghost flashes!)
+        currentSlide.src = nextSrc;
+        currentSlide.classList.add('active');
+        
+        // Clean up and deactivate the background layer
+        nextSlide.classList.remove('active');
+        nextSlide.src = ''; 
+    }
+}
+
+// 3. Diashow Controls
+// Diashow Controls
+function toggleSlideshow(e) {
+    if (e) e.stopPropagation();
+    if (slideshowInterval) {
+        stopSlideshow();
+    } else {
+        startSlideshow();
+    }
+}
+
+function startSlideshow() {
+    const lightbox = document.getElementById('lightbox');
+    const btn = document.getElementById('slideshow-btn');
+    const icon = document.getElementById('slideshow-icon');
+    const text = document.getElementById('slideshow-text');
+
+    // ⚡ Enable crossfade transition for the slideshow
+    if (lightbox) lightbox.classList.add('slideshow-active');
+
+    if (btn) btn.classList.add('active');
+    if (icon) icon.innerHTML = '&#10074;&#10074;';
+    if (text) text.innerText = 'Pause';
+
+    slideshowInterval = setInterval(() => {
+        nextLightboxImage(null, true);
+    }, SLIDESHOW_SPEED);
+}
+
+function stopSlideshow() {
+    const lightbox = document.getElementById('lightbox');
+    if (slideshowInterval) {
+        clearInterval(slideshowInterval);
+        slideshowInterval = null;
+    }
+
+    // ⚡ Disable crossfade transition when slideshow stops (returns to instant clicks)
+    if (lightbox) lightbox.classList.remove('slideshow-active');
+
+    const btn = document.getElementById('slideshow-btn');
+    const icon = document.getElementById('slideshow-icon');
+    const text = document.getElementById('slideshow-text');
+
+    if (btn) btn.classList.remove('active');
+    if (icon) icon.innerHTML = '&#9654;';
+    if (text) text.innerText = 'Diashow';
+}
+
+// 4. Navigation Handlers
+function nextLightboxImage(e, auto = false) {
+    if (e) e.stopPropagation();
+    if (!auto) stopSlideshow(); // Stop slideshow if user clicks manually
+    if (currentGalleryImages.length === 0) return;
+    currentLightboxIndex = (currentLightboxIndex + 1) % currentGalleryImages.length;
+    updateLightboxContent(true);
+}
+
+function prevLightboxImage(e) {
+    if (e) e.stopPropagation();
+    stopSlideshow();
+    if (currentGalleryImages.length === 0) return;
+    currentLightboxIndex = (currentLightboxIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
+    updateLightboxContent(true);
+}
+
+function closeLightbox(e) {
+    if (!e || e.target.id === 'lightbox' || e.target.classList.contains('lightbox-close')) {
+        stopSlideshow();
+        document.getElementById('lightbox').classList.remove('open');
+    }
+}
+
+// 5. Keyboard Navigation
+document.addEventListener('keydown', function(e) {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox || !lightbox.classList.contains('open')) return;
+
+    if (e.key === 'ArrowRight') nextLightboxImage();
+    if (e.key === 'ArrowLeft') prevLightboxImage();
+    if (e.key === 'Space') { e.preventDefault(); toggleSlideshow(); }
+    if (e.key === 'Escape') closeLightbox();
+});
+
+// 6. Mobile Touch Swiping
+const lightboxEl = document.getElementById('lightbox');
+
+lightboxEl.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+lightboxEl.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+    const threshold = 40;
+    if (touchEndX < touchStartX - threshold) {
+        nextLightboxImage();
+    } else if (touchEndX > touchStartX + threshold) {
+        prevLightboxImage();
+    }
+}
+        // 5. Advanced Scroll Observers (Card/Pano Reveals)
+        function initScrollAnimations() {
+            const revealElements = document.querySelectorAll('.photo-card, .pano-block');
+            const elementObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        elementObserver.unobserve(entry.target); 
+                    }
+                });
+            }, { root: null, threshold: 0.05, rootMargin: "0px 0px -50px 0px" });
+
+            revealElements.forEach(el => elementObserver.observe(el));
+        }
+
+        // 6. Localized Multi-Canvas Particle Engine
+        function startDreamyParticles(canvasId, particleCount) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            let particlesArray = [];
+
+            function setCanvasSize() {
+                canvas.width = canvas.parentElement.offsetWidth;
+                canvas.height = canvas.parentElement.offsetHeight;
+            }
+            setCanvasSize();
+            window.addEventListener('resize', setCanvasSize);
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 2 + 0.4; 
+                    this.speedX = (Math.random() - 0.5) * 0.3; 
+                    this.speedY = (Math.random() - 0.5) * 0.3;   
+                    this.opacity = Math.random() * 0.3 + 0.1; 
+                }
+                update() {
+                    this.speedX += (Math.random() - 0.5) * 0.015;
+                    this.speedY += (Math.random() - 0.5) * 0.015;
+
+                    const maxV = 0.4;
+                    if (this.speedX > maxV) this.speedX = maxV;
+                    if (this.speedX < -maxV) this.speedX = -maxV;
+                    if (this.speedY > maxV) this.speedY = maxV;
+                    if (this.speedY < -maxV) this.speedY = -maxV;
+
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.x > canvas.width) this.x = 0;
+                    if (this.x < 0) this.x = canvas.width;
+                    if (this.y > canvas.height) this.y = 0;
+                    if (this.y < 0) this.y = canvas.height;
+                }
+                draw() {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); 
+                    ctx.fill();
+                }
+            }
+
+            function init() {
+                for (let i = 0; i < particleCount; i++) {
+                    particlesArray.push(new Particle());
+                }
+            }
+
+            function animate() {
+                if (!document.getElementById(canvasId)) return;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particlesArray.length; i++) {
+                    particlesArray[i].update();
+                    particlesArray[i].draw();
+                }
+                requestAnimationFrame(animate);
+            }
+            init();
+            animate();
+        }
+    </script>
+</body>
+</html>
