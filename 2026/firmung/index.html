@@ -51,7 +51,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(10, 10, 12, 0.6), rgba(10, 10, 12, 0.9)), 
-                        url('kirche.jpg') center/cover no-repeat;
+                        url('./kirche.jpg') center/cover no-repeat;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -379,8 +379,7 @@
         /* Desktop Full-Width Panorama Layout Block */
         .pano-block {
             width: 100%;
-            height: 30vh; 
-            max-height: 380px;
+            height: auto; 
             margin: 30px 0 40px 0;
             overflow: hidden;
             cursor: pointer;
@@ -414,6 +413,7 @@
         .photo-card:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
         .photo-card img { 
             width: 100%; height: 100%; object-fit: cover; 
+            object-position: center 10%;
             transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
         }
         .photo-card:hover img { transform: scale(1.03); }
@@ -660,6 +660,54 @@ body.light-theme .download-box .line-3 {
 #ceremony-subtitle {
     margin-bottom: 10px;
 }
+/* ⏳ Preloader Overlay Styles */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 10, 12, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.loader-overlay.active {
+    opacity: 1;
+}
+
+.loader-content {
+    text-align: center;
+    color: #ffffff;
+    font-family: inherit;
+}
+
+.spinner {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 16px auto;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    border-top: 3px solid #d4af37; /* Warm Swiss Gold */
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#loader-text {
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
     </style>
 </head>
 <body class="landing-active">
@@ -704,6 +752,14 @@ body.light-theme .download-box .line-3 {
       </filter>
     </svg>
 
+    <!-- ⏳ CEREMONY PRELOADER OVERLAY -->
+<div id="ceremony-loader" class="loader-overlay" style="display: none;">
+    <div class="loader-content">
+        <div class="spinner"></div>
+        <p id="loader-text">Bilder werden geladen...</p>
+    </div>
+</div>
+
     <!-- ==========================================
          VIEW 1: LANDING PORTAL (Hero Screen Only)
          ========================================== -->
@@ -735,7 +791,7 @@ body.light-theme .download-box .line-3 {
             <button class="btn-back" onclick="goBackToLanding()">← Zur Übersicht</button>
             
             <h1 id="ceremony-title">Morgenzeremonie</h1>
-            <p id="ceremony-subtitle">Katholische Kirche Heiliggist — Suhr, 13. Juni 2026</p>
+            <p id="ceremony-subtitle">Katholische Kirche Heiliggeist</p>
             <div id="ceremony-title-deco"> <img src="text_deco.png" alt="Dekoration"></div>
         </header>
 
@@ -898,7 +954,7 @@ window.addEventListener('DOMContentLoaded', () => {
         // Enforce protection -> show overlay, initialize base particles, focus input
         if (overlay) overlay.style.display = 'flex';
         if (typeof startDreamyParticles === 'function') {
-            startDreamyParticles('hero-canvas', 145);
+            startDreamyParticles('login-canvas', 145);
         }
         if (input) {
             setTimeout(() => input.focus(), 150);
@@ -964,11 +1020,30 @@ async function checkPassword() {
     }
 }
 
+// =========================================================
+// 1. IMAGE PRELOADER HELPER
+// =========================================================
+function preloadImages(urls) {
+    return Promise.all(
+        urls.map(url => {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(url);
+                img.onerror = () => resolve(url); // Continue gracefully even if one image fails
+                img.src = url;
+            });
+        })
+    );
+}
+
         // 2. DYNAMIC PHOTO GALLERY GENERATOR (285 Photos Total)
         // 🖼️ LIST YOUR ULTRA-WIDE / PANORAMA PHOTO NUMBERS HERE:
 const PANORAMA_NUMBERS = [1, 6, 7, 8, 12, 15, 20, 22, 24, 116, 120, 121, 122, 158, 159, 166, 167, 172, 176, 177]; // Replace with your actual numbers!
 
 
+// =========================================================
+// 3. UPDATED GALLERY RENDERER (THUMBNAILS + FULL-RES DATA)
+// =========================================================
 function renderCeremonyPhotos(type) {
     const container = document.getElementById('ceremony-gallery-container');
     container.innerHTML = ''; 
@@ -976,10 +1051,8 @@ function renderCeremonyPhotos(type) {
     const startNum = (type === 'morgen') ? 1 : 147;
     const endNum = (type === 'morgen') ? 145 : 285;
 
-    // 1. Filter panoramas that belong specifically to this ceremony
     const ceremonyPanos = PANORAMA_NUMBERS.filter(num => num >= startNum && num <= endNum);
     
-    // 2. Collect all regular (non-panorama) photos for this ceremony
     const ceremonyRegulars = [];
     for (let i = startNum; i <= endNum; i++) {
         if (!ceremonyPanos.includes(i)) {
@@ -987,10 +1060,9 @@ function renderCeremonyPhotos(type) {
         }
     }
 
-    // 3. Group regular photos into alternating 4-photo (2-col) and 6-photo (3-col) blocks
     const blocks = [];
     let regIndex = 0;
-    let isTri = false; // Starts with 4-photo 2-column grid
+    let isTri = false;
 
     while (regIndex < ceremonyRegulars.length) {
         const targetCount = isTri ? 6 : 4;
@@ -1000,21 +1072,18 @@ function renderCeremonyPhotos(type) {
             photos: currentBlock
         });
         regIndex += targetCount;
-        isTri = !isTri; // Alternate grid size for editorial rhythm
+        isTri = !isTri;
     }
 
-    // 4. Calculate even insertion points for the detected panoramas across the grid blocks
     const P = ceremonyPanos.length;
     const B = blocks.length;
-    const panoInsertMap = {}; // Map: grid_block_index -> pano_photo_number
+    const panoInsertMap = {};
 
     if (P > 0 && B > 0) {
         ceremonyPanos.forEach((panoNum, idx) => {
-            // Evenly space panos: places them at 1/(P+1), 2/(P+1), etc., along the block sequence
             let targetBlockIndex = Math.floor(((idx + 1) * B) / (P + 1)) - 1;
             targetBlockIndex = Math.max(0, Math.min(B - 1, targetBlockIndex));
             
-            // Avoid collisions if multiple panos target the same slot
             while (panoInsertMap[targetBlockIndex] !== undefined && targetBlockIndex < B - 1) {
                 targetBlockIndex++;
             }
@@ -1022,26 +1091,28 @@ function renderCeremonyPhotos(type) {
         });
     }
 
-    // 5. Build final HTML string
     let htmlBuffer = '';
     blocks.forEach((block, index) => {
-        
-        // Render regular photo grid
         htmlBuffer += `<div class="${block.type}">`;
         block.photos.forEach(num => {
+            const fullSrc = `img/firmung_suhr_2026 (${num} of 285).jpg`;
+            const thumbSrc = `img/thumbs/firmung_suhr_2026 (${num} of 285).jpg`;
+            
             htmlBuffer += `
-            <div class="photo-card" onclick="openLightbox(this)">
-                <img src="img/firmung_suhr_2026 (${num} of 285).jpg" alt="Firmung Foto ${num}" loading="lazy">
+            <div class="photo-card" onclick="openLightbox(this)" data-full="${fullSrc}">
+                <img src="${thumbSrc}" onerror="this.src='${fullSrc}'" alt="Firmung Foto ${num}" loading="lazy">
             </div>`;
         });
         htmlBuffer += `</div>`;
 
-        // If an actual panorama is scheduled after this block, insert full-width pano
         if (panoInsertMap[index] !== undefined) {
             const panoNum = panoInsertMap[index];
+            const fullSrc = `img/firmung_suhr_2026 (${panoNum} of 285).jpg`;
+            const thumbSrc = `img/thumbs/firmung_suhr_2026 (${panoNum} of 285).jpg`;
+
             htmlBuffer += `
-            <div class="pano-block" onclick="openLightbox(this)">
-                <img src="img/firmung_suhr_2026 (${panoNum} of 285).jpg" alt="Firmung Panorama ${panoNum}" loading="lazy">
+            <div class="pano-block" onclick="openLightbox(this)" data-full="${fullSrc}">
+                <img src="${thumbSrc}" onerror="this.src='${fullSrc}'" alt="Firmung Panorama ${panoNum}" loading="lazy">
             </div>`;
         }
     });
@@ -1049,27 +1120,55 @@ function renderCeremonyPhotos(type) {
     container.innerHTML = htmlBuffer;
 }
 
-       function openCeremony(type) {
+     // =========================================================
+// 2. UPDATED openCeremony WITH PRELOADER
+// =========================================================
+async function openCeremony(type) {
+    const loader = document.getElementById('ceremony-loader');
     const landingView = document.getElementById('landing-view');
     const ceremonyView = document.getElementById('ceremony-view');
     const ceremonyHero = document.getElementById('ceremony-hero');
 
+    // ⚡ Step A: Show Preloader Spinner
+    if (loader) {
+        loader.style.display = 'flex';
+        setTimeout(() => loader.classList.add('active'), 10);
+    }
+
+    // Determine Hero and First 6 Photo Paths
+    const heroPath = (type === 'morgen') 
+        ? 'img/firmung_suhr_2026 (1 of 285).jpg' 
+        : 'img/firmung_suhr_2026 (146 of 285).jpg';
+
+    const startNum = (type === 'morgen') ? 1 : 147;
+    
+    // Collect paths for Hero + First 6 Grid Images (uses thumbnail folder if available)
+    const imagesToPreload = [heroPath];
+    for (let i = startNum; i < startNum + 6; i++) {
+        imagesToPreload.push(`img/thumbs/firmung_suhr_2026 (${i} of 285).jpg`);
+    }
+
+    // ⚡ Step B: Wait for Hero + First 6 images to cache in browser
+    await preloadImages(imagesToPreload);
+
+    // ⚡ Step C: Update Hero Content & Downloads
     if (type === 'morgen') {
         document.getElementById('ceremony-title').innerText = "Morgenzeremonie";
         document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggeist, Suhr";
-        ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (1 of 285).jpg')";
+        ceremonyHero.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('${heroPath}')`;
     } else {
         document.getElementById('ceremony-title').innerText = "Nachmittagszeremonie";
         document.getElementById('ceremony-subtitle').innerText = "Katholische Kirche Heiliggeist, Suhr";
-        ceremonyHero.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('img/firmung_suhr_2026 (146 of 285).jpg')";
+        ceremonyHero.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.65)), url('${heroPath}')`;
     }
 
-    // ⚡ Toggle download button groups for the active ceremony
     document.querySelectorAll('.downloads-morgen').forEach(el => el.style.display = (type === 'morgen') ? 'block' : 'none');
     document.querySelectorAll('.downloads-nachmittag').forEach(el => el.style.display = (type === 'nachmittag') ? 'block' : 'none');
 
+    // Generate Gallery HTML
     renderCeremonyPhotos(type);
 
+    // ⚡ Step D: Transition Views
     landingView.style.opacity = '0';
     
     setTimeout(() => {
@@ -1083,8 +1182,14 @@ function renderCeremonyPhotos(type) {
             ceremonyView.style.opacity = '1';
             startDreamyParticles('ceremony-hero-canvas', 150);
             initScrollAnimations();
+
+            // Hide Loader
+            if (loader) {
+                loader.classList.remove('active');
+                setTimeout(() => loader.style.display = 'none', 300);
+            }
         }, 50);
-    }, 600);
+    }, 400);
 }
 
         function goBackToLanding() {
@@ -1117,21 +1222,25 @@ let touchEndX = 0;
 let slideshowInterval = null;
 const SLIDESHOW_SPEED = 2800; // ⚡ 2.8 seconds per photo gives a smooth, relaxed rhythm
 
-// 1. Open Lightbox
+// =========================================================
+// 4. UPDATED LIGHTBOX (LOADS HIGH-RES FROM data-full)
+// =========================================================
 function openLightbox(element) {
-    const containerImgs = Array.from(document.querySelectorAll('#ceremony-gallery-container img'));
-    currentGalleryImages = containerImgs.map(img => img.src);
+    const cards = Array.from(document.querySelectorAll('#ceremony-gallery-container .photo-card, #ceremony-gallery-container .pano-block'));
     
-    const targetSrc = element.querySelector('img').src;
-    currentLightboxIndex = currentGalleryImages.indexOf(targetSrc);
+    // Extract full-resolution image URLs for the lightbox
+    currentGalleryImages = cards.map(card => card.getAttribute('data-full') || card.querySelector('img').src);
+    
+    const targetFullSrc = element.getAttribute('data-full') || element.querySelector('img').src;
+    currentLightboxIndex = currentGalleryImages.indexOf(targetFullSrc);
     if (currentLightboxIndex === -1) currentLightboxIndex = 0;
 
     stopSlideshow();
-    updateLightboxContent(false); // Initial load without transition
+    updateLightboxContent(false);
     
     const lightbox = document.getElementById('lightbox');
-    lightbox.classList.add('open');
-}
+    if (lightbox) lightbox.classList.add('open');
+    }
 
 // 2. True Dual-Layer Crossfade Engine
 // 2. Dual-Mode Render Engine (Zero Ghosting / Flashing)
