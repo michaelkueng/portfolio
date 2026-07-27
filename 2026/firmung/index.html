@@ -271,6 +271,26 @@
             margin: 15px auto 25px;
             filter: url(#solidify-white) brightness(200%);
         }
+         #letter-decoration img,
+        #ceremony-title-deco img {
+            width: 220px;
+            max-width: 50%;
+            height: auto;
+            display: block;
+            margin: 15px auto 0px;
+            filter: url(#solidify-white) brightness(200%);
+        }
+           #letter-decoration-180 img,
+        #ceremony-title-deco img {
+            transform: rotate(180deg);
+            width: 220px;
+            max-width: 50%;
+            height: auto;
+            display: block;
+            margin: 15px auto 15px;
+            filter: url(#solidify-white) brightness(200%);
+        }
+
 
         /* Ceremony Navigation Buttons */
         .ceremony-nav {
@@ -712,21 +732,48 @@ body.light-theme .download-box .line-3 {
 /* =========================================================
    PHOTOGRAPHER PERSONAL NOTE CARD
    ========================================================= */
+/* =========================================================
+   PHOTOGRAPHER NOTE CARD (WITH BOTTOM PANORAMA)
+   ========================================================= */
 .photographer-note {
     max-width: 680px;
     margin: 0 auto 3.5rem auto;
     padding: 2.5rem 2rem;
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(212, 175, 55, 0.25); /* Subtle Swiss Gold Border */
+    border: 1px solid rgba(212, 175, 55, 0.25);
     border-radius: 12px;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     text-align: left;
     position: relative;
+    overflow: hidden; /* ⚡ Crucial so the image stays contained inside rounded corners */
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-    text-decoration: none !important;
 }
 
+/* ⚡ Ensures all text, video, mail links, and signature stay crisp above the photo */
+.photographer-note > * {
+    position: relative;
+    z-index: 2;
+}
+
+/* 🌅 Bottom Jura Sunset Panorama Layer */
+.photographer-note::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 280px; /* Adjust height of the panorama block (e.g., 240px to 320px) */
+    background: url('rundum_panorama_sonnenuntergang_jura_von_michael_kueng.webp') center bottom / cover no-repeat;
+    
+    /* ⚡ Smooth Fade-In Mask: Completely transparent at the top, fading into the full photo */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 45%, #000 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 45%, #000 100%);
+    
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.55; /* ⚡ Soft atmosphere so text and signature stay 100% readable */
+}
 /* ⚡ Remove underlines and borders from links inside the note */
 .photographer-note a,
 .note-mail-link {
@@ -797,7 +844,8 @@ body.light-theme .download-box .line-3 {
 
 /* Signature Block */
 .note-signature {
-    margin-top: 1.8rem;
+    margin-top: 0rem;
+    margin-bottom: 2rem;
     display: flex;
     flex-direction: column;
 }
@@ -811,7 +859,7 @@ body.light-theme .download-box .line-3 {
    font-family: 'Caveat', cursive;
     font-size: 2.6rem;
     color: #d4af37;
-    margin-top: 10px;
+    margin-top: 0px;
     margin-bottom: 30px;
 }
 
@@ -821,6 +869,29 @@ body.light-theme .download-box .line-3 {
         padding: 1.8rem 1.25rem;
         margin-bottom: 2.5rem;
     }
+}
+/* =========================================================
+   PHOTOGRAPHER NOTE WORKFLOW VIDEO
+   ========================================================= */
+.note-video-container {
+    width: 100%;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.25); /* Warm Swiss Gold Frame */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background: #000000;
+}
+
+.note-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    pointer-events: none; /* Prevents accidental video controls on tap */
+}
+.contact {
+    margin-top: 3rem;
 }
     </style>
 </head>
@@ -983,25 +1054,45 @@ body.light-theme .download-box .line-3 {
             
             <p class="note-lead">Hey, ich bin Michi, der Fotograf. Vielen Dank, dass ich dabei sein durfte!</p>
             
-            <p>Die Entwicklung von diesen insgesamt knapp 300 ausgewählten Fotos mit wechselnden Lichtbedingungen und den wunderschönen Mosaikfenstern, die alle möglichen Farben in den Raum warfen, war eine enorm arbeitsintensive Arbeit, die viel Geduld erforderte und unglaublich spannend war. Merci!</p>
+            <p>Die Entwicklung von knapp 300 ausgewählten Fotos und das Schreiben dieser kleinen Website war eine intensive, spannende Arbeit, die viel Spass gemacht hat. Merci!</p>
+
+
+<!-- 🎬 EDITING WORKFLOW VIDEO -->
+<div class="note-video-container">
+    <video autoplay loop muted playsinline class="note-video">
+        <source src="editing.mp4" type="video/mp4">
+        Ihr Browser unterstützt dieses Video-Format leider nicht.
+    </video>
+</div>
+
+
             
-            <p>Ich hoffe, ihr hattet einen wunderschönen Tag und habt Freude an den Fotos.</p>
+            <p>Ich hoffe, ihr hattet einen wunderschönen Tag und habt Freude an den Bildern.</p>
             
-            <p>Die Fotos dürfen selbstverständlich beliebig geteilt, auf Social Media gepostet, ausgedruckt werden – was auch immer ihr schön findet.</p>
+            <p>Die Fotos dürfen beliebig geteilt, auf Social Media gepostet oder gedruckt werden – was immer ihr schön findet.</p>
 
             <p>Bitte denkt daran, dass es nur dann okay ist, Bilder zu teilen, bei denen einzelne Personen im Fokus sind, wenn diese Personen damit einverstanden sind.</p>
 
-             <p>Bei Fragen & Anmerkungen bin ich gerne per <a href="mailto:kontakt@michaelkueng.ch" class="note-mail-link">Mail</a> erreichbar.</p>
+             <p>Bei Fragen & Rückmeldungen bin ich gerne per <a href="mailto:kontakt@michaelkueng.ch" class="note-mail-link">Mail</a> erreichbar.</p>
 
-             <p>Habt wunderschöne letzte Ferientage und einen ganz guten Start ins nächste Schuljahr, die nächste Herausforderung – was auch immer ansteht: Ganz viel Spass & Erfolg!</p>
+             <p>Geniesst die letzten Ferientage!</p>
+             <p>Liebe Grüsse,</p>
             
             <div class="note-signature">
-                <span class="sig-title">Liebe Grüsse,</span>
+                
                 <span class="sig-name">Michi</span>
             </div>
-            <p><strong>PS:</strong> Falls jemand einen Fotografen sucht: ich bin immer offen. Mehr von meiner Arbeit könnt ihr auf meiner Website entdecken: <a href="https://www.michaelkueng.ch" target="_blank" rel="noopener">www.michaelkueng.ch</a>. Mögliche 
-            Anfragen gerne unkompliziert per <a href="mailto:kontakt@michaelkueng.ch" class="note-mail-link">Mail</a>, <a href="https://wa.me/michael.mathias.kueng" target="_blank" rel="noopener">Whatsapp</a> oder <a href="tel:+4178232359" class="note-phone-link">Telefon</a>.
+            <div id="ps"></div><p style="text-align:center;">Fotograf gesucht? Ich bin immer offen für Anfragen aller Art!<br>Mehr von meiner Arbeit findet ihr auf <a href="https://www.michaelkueng.ch" target="_blank" rel="noopener">www.michaelkueng.ch</a></p><br>
+            
+            <div id="contact">
+            <div id="letter-decoration-180"> <img src="text_deco.png" alt="Dekoration"></div>
+
+            <p style="text-align: center;">
+                <a href="mailto:kontakt@michaelkueng.ch" class="note-mail-link">Mail</a> &nbsp;&nbsp;·&nbsp;&nbsp; <a href="https://wa.me/michael.mathias.kueng" target="_blank" rel="noopener">Whatsapp</a> &nbsp;&nbsp;·&nbsp;&nbsp; <a href="tel:+4178232359" class="note-phone-link">Telefon</a>
         </p>
+        <div id="letter-decoration"> <img src="text_deco.png" alt="Dekoration"></div>
+        </div>
+
         </div>
 
         <h3>Fotos herunterladen</h3>
